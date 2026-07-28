@@ -3,7 +3,7 @@ import type { CameraType } from "../../lib/types/camera";
 
 export default function CameraCard({ cam }: { cam: CameraType }) {
   return (
-    <div className=" bg-white relative h-full py-2 px-5 flex gap-2 items-center rounded-[10px] border-2 border-white">
+    <div className=" bg-white relative h-full py-2 px-5 flex flex-col lg:flex-row gap-2 items-center rounded-[10px] border-2 border-white">
       {cam.discount !== 0 && (
         <div className="absolute start-2 top-2 rounded-full text-white bg-primary px-2 py-[2px] text-xs">
           {" "}
@@ -23,7 +23,7 @@ export default function CameraCard({ cam }: { cam: CameraType }) {
           {cam.description}{" "}
           <span className="text-blue-600 underline text-sm">Learn More</span>
         </p>
-        <div className="mt-1 flex gap-2 items-center">
+        <div className="mt-1 flex gap-2 items-center flex-wrap">
           {cam.variations.map(
             (variation) =>
               variation.color && (
