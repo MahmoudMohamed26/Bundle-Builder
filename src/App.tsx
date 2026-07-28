@@ -16,6 +16,7 @@ import SensorCard from "./components/sensors/sensor-card";
 import AccessoryCard from "./components/accessories/accessory-card";
 import PlanCard from "./components/plans/plan-card";
 import { Button } from "./components/ui/button";
+import Seperator from "./components/global/seperator";
 
 function App() {
   const [open, setOpen] = useState<Record<string, string[]>>({
@@ -30,14 +31,16 @@ function App() {
   };
 
   return (
-    <div className="container py-10! grid xl:grid-cols-3 gap-10">
-      <div className="lg:col-span-2 rounded-[10px]">
-        <div className="space-y-5">
+    <div className="container py-10! grid xl:grid-cols-3 items-start gap-10">
+      <div className="lg:col-span-2">
+        <div className="space-y-3">
           <Accordion
             step={1}
             total={4}
             value={open.cameras}
-            onValueChange={(val) => setOpen((prev) => ({ ...prev, cameras: val }))}
+            onValueChange={(val) =>
+              setOpen((prev) => ({ ...prev, cameras: val }))
+            }
           >
             <AccordionItem value="cameras">
               <AccordionTrigger className="py-3 text-md sm:text-xl font-medium">
@@ -81,7 +84,9 @@ function App() {
             step={2}
             total={4}
             value={open.sensors}
-            onValueChange={(val) => setOpen((prev) => ({ ...prev, sensors: val }))}
+            onValueChange={(val) =>
+              setOpen((prev) => ({ ...prev, sensors: val }))
+            }
           >
             <AccordionItem value="sensors">
               <AccordionTrigger className="py-3 text-md sm:text-xl font-medium">
@@ -125,7 +130,9 @@ function App() {
             step={3}
             total={4}
             value={open.accessories}
-            onValueChange={(val) => setOpen((prev) => ({ ...prev, accessories: val }))}
+            onValueChange={(val) =>
+              setOpen((prev) => ({ ...prev, accessories: val }))
+            }
           >
             <AccordionItem value="accessories">
               <AccordionTrigger className="py-3 text-md sm:text-xl font-medium">
@@ -138,7 +145,8 @@ function App() {
                 <div className="grid sm:grid-cols-2 gap-3">
                   {accessories.map((accessory, i) => {
                     const lastOdd =
-                      accessories.length % 2 !== 0 && i === accessories.length - 1;
+                      accessories.length % 2 !== 0 &&
+                      i === accessories.length - 1;
                     return (
                       <div
                         key={accessory.id}
@@ -169,7 +177,9 @@ function App() {
             step={4}
             total={4}
             value={open.plans}
-            onValueChange={(val) => setOpen((prev) => ({ ...prev, plans: val }))}
+            onValueChange={(val) =>
+              setOpen((prev) => ({ ...prev, plans: val }))
+            }
           >
             <AccordionItem value="plans">
               <AccordionTrigger className="py-3 text-md sm:text-xl font-medium">
@@ -188,6 +198,18 @@ function App() {
             </AccordionItem>
           </Accordion>
         </div>
+      </div>
+      <div className="bg-secondary py-3 px-4 rounded-lg">
+        <span className="uppercase tracking-wider text-xs text-text-primary font-semibold">
+          review
+        </span>
+        <h2 className="text-[22px] font-semibold mt-4">Your security system</h2>
+        <p className="mt-2 text-sm text-text-primary max-w-xs">
+          Review your personalized protection system designed to keep what
+          matters most safe.
+        </p>
+        <Seperator />
+        <h6 className="uppercase text-sm text-text-primary">cameras</h6>
       </div>
     </div>
   );
