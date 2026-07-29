@@ -12,6 +12,7 @@ import cam3Var1 from "../assets/cam3-var1.png"
 import cam3Var2 from "../assets/cam3-var2.png"
 import cam4 from "../assets/cam4.png"
 import cam5 from "../assets/cam5.png"
+import cam5Var2 from "../assets/cam5-var2.png"
 
 const cameras: CameraType[] = [
   {
@@ -24,7 +25,7 @@ const cameras: CameraType[] = [
     variations: [
       {
         id: 1,
-        quantity: 1,
+        quantity: 10,
         color: {
           id: 1,
           title: "White",
@@ -33,7 +34,7 @@ const cameras: CameraType[] = [
       },
       {
         id: 2,
-        quantity: 0,
+        quantity: 5,
         color: {
           id: 2,
           title: "Grey",
@@ -42,7 +43,7 @@ const cameras: CameraType[] = [
       },
       {
         id: 3,
-        quantity: 0,
+        quantity: 5,
         color: {
           id: 3,
           title: "Black",
@@ -61,7 +62,7 @@ const cameras: CameraType[] = [
     variations: [
       {
         id: 1,
-        quantity: 2,
+        quantity: 8,
         color: {
           id: 1,
           title: "White",
@@ -70,7 +71,7 @@ const cameras: CameraType[] = [
       },
       {
         id: 2,
-        quantity: 0,
+        quantity: 6,
         color: {
           id: 3,
           title: "Black",
@@ -90,7 +91,7 @@ const cameras: CameraType[] = [
     variations: [
       {
         id: 1,
-        quantity: 0,
+        quantity: 9,
         color: {
           id: 1,
           title: "White",
@@ -99,7 +100,7 @@ const cameras: CameraType[] = [
       },
       {
         id: 2,
-        quantity: 0,
+        quantity: 12,
         color: {
           id: 3,
           title: "Black",
@@ -118,7 +119,7 @@ const cameras: CameraType[] = [
     variations: [
       {
         id: 1,
-        quantity: 0,
+        quantity: 10,
         color: null,
       },
     ],
@@ -134,7 +135,7 @@ const cameras: CameraType[] = [
     variations: [
       {
         id: 1,
-        quantity: 0,
+        quantity: 19,
         color: {
           id: 1,
           title: "White",
@@ -143,11 +144,11 @@ const cameras: CameraType[] = [
       },
       {
         id: 2,
-        quantity: 0,
+        quantity: 8,
         color: {
           id: 3,
           title: "Black",
-          image: { id: 3, url: cam5 },
+          image: { id: 3, url: cam5Var2 },
         },
       },
     ],

@@ -1,9 +1,15 @@
-import { Minus, Plus } from "lucide-react"
-import type { SensorType } from "../../lib/types/sensor"
+import type { SensorType } from "../../lib/types/sensor";
+import useBundleStore from "../../store/bundle-store";
+import QuantitySelector from "../global/quantity-selector";
 
 export default function SensorCard({ sensor }: { sensor: SensorType }) {
+  const qty = useBundleStore((s) => s.sensors[sensor.id] || 0);
+  const setSensorQty = useBundleStore((s) => s.setSensorQty);
+
   return (
-    <div className="bg-white relative h-full py-2 px-5 flex flex-col lg:flex-row gap-2 items-center rounded-[10px] border-2 border-white">
+    <div
+      className={`bg-white relative h-full py-2 px-5 flex flex-col lg:flex-row gap-2 items-center rounded-[10px] border-2 ${qty > 0 ? "border-primary" : "border-white"}`}
+    >
       {sensor.discount !== 0 && (
         <div className="absolute start-2 top-2 rounded-full text-white bg-primary px-2 py-[2px] text-xs">
           Save <span className="font-semibold">%{sensor.discount}</span>
@@ -23,20 +29,13 @@ export default function SensorCard({ sensor }: { sensor: SensorType }) {
           <span className="text-blue-600 underline text-sm">Learn More</span>
         </p>
         <div className="flex justify-between items-center gap-2">
-          <div className="mt-3 flex gap-3 items-end text-text-primary">
-            <button
-              disabled
-              className="border-2 p-1 disabled:bg-transparent! bg-white rounded-xs"
-            >
-              <Minus size={12} />
-            </button>
-            <span className="text-lg">{sensor.quantity}</span>
-            <button
-              disabled
-              className="border-2 p-1 disabled:bg-transparent! bg-white rounded-xs"
-            >
-              <Plus size={12} />
-            </button>
+          <div className="mt-3">
+            <QuantitySelector
+              qty={qty}
+              max={sensor.quantity}
+              onMinus={() => setSensorQty(sensor.id, qty - 1)}
+              onPlus={() => setSensorQty(sensor.id, qty + 1)}
+            />
           </div>
           <div className="flex text-[16px] flex-col mt-4 justify-center items-center">
             <div
@@ -49,12 +48,16 @@ export default function SensorCard({ sensor }: { sensor: SensorType }) {
             </div>
             {sensor.discount !== 0 && (
               <div className="text-text-primary">
-                $ {(sensor.price - (sensor.discount / 100) * sensor.price).toFixed(2)}
+                ${" "}
+                {(
+                  sensor.price -
+                  (sensor.discount / 100) * sensor.price
+                ).toFixed(2)}
               </div>
             )}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
