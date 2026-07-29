@@ -7,17 +7,19 @@ export default function CameraCard({ cam }: { cam: CameraType }) {
   const firstVariation = cam.variations[0];
   const [activeVariationId, setActiveVariationId] = useState(firstVariation.id);
 
-  const cameraVariations = useBundleStore((s) => s.cameraVariations);
+  const storeCameras = useBundleStore((s) => s.cameras);
   const setCameraVariationQty = useBundleStore((s) => s.setCameraVariationQty);
 
-  const hasAnyQty = cam.variations.some(
-    (v) => (cameraVariations[`${cam.id}-${v.id}`] || 0) > 0,
+  const hasAnyQty = storeCameras.some(
+    (c) => c.cameraId === cam.id && c.quantity > 0,
   );
 
   const activeVariation =
     cam.variations.find((v) => v.id === activeVariationId) || firstVariation;
-  const activeQty =
-    cameraVariations[`${cam.id}-${activeVariation.id}`] || 0;
+  const activeSel = storeCameras.find(
+    (c) => c.cameraId === cam.id && c.variationId === activeVariation.id,
+  );
+  const activeQty = activeSel?.quantity ?? 0;
 
   return (
     <div
@@ -77,10 +79,18 @@ export default function CameraCard({ cam }: { cam: CameraType }) {
               qty={activeQty}
               max={activeVariation.quantity}
               onMinus={() =>
-                setCameraVariationQty(cam.id, activeVariation.id, activeQty - 1)
+                setCameraVariationQty(
+                  cam.id,
+                  activeVariation.id,
+                  activeQty - 1,
+                )
               }
               onPlus={() =>
-                setCameraVariationQty(cam.id, activeVariation.id, activeQty + 1)
+                setCameraVariationQty(
+                  cam.id,
+                  activeVariation.id,
+                  activeQty + 1,
+                )
               }
             />
           </div>

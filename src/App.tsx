@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Cable, Camera, MemoryStick, Shield } from "lucide-react";
+import { Cable, Camera, MemoryStick, Shield, Truck } from "lucide-react";
 import "./App.css";
 import {
   Accordion,
@@ -16,9 +16,11 @@ import SensorCard from "./components/sensors/sensor-card";
 import AccessoryCard from "./components/accessories/accessory-card";
 import PlanCard from "./components/plans/plan-card";
 import { Button } from "./components/ui/button";
+import { toast } from "sonner";
 import Seperator from "./components/global/seperator";
 import QuantitySelector from "./components/global/quantity-selector";
 import useBundleStore from "./store/bundle-store";
+import badge from "./assets/badge.png";
 
 function App() {
   const [open, setOpen] = useState<Record<string, string[]>>({
@@ -31,21 +33,20 @@ function App() {
   const store = useBundleStore();
 
   const hasSelection =
-    Object.values(store.cameraVariations).some((v) => v > 0) ||
-    Object.values(store.sensors).some((v) => v > 0) ||
-    Object.values(store.accessories).some((v) => v > 0) ||
+    store.cameras.length > 0 ||
+    store.sensors.length > 0 ||
+    store.accessories.length > 0 ||
     store.plan !== null;
 
   const handleNext = (current: string, next: string) => {
     setOpen((prev) => ({ ...prev, [current]: [], [next]: [next] }));
   };
 
-  const selectedCameraVariations = store.cameraVariationOrder
-    .map((key) => {
-      const [cid, vid] = key.split("-").map(Number);
-      const cam = cameras.find((c) => c.id === cid);
+  const selectedCameraVariations = store.cameras
+    .map((sel) => {
+      const cam = cameras.find((c) => c.id === sel.cameraId);
       if (!cam) return null;
-      const variation = cam.variations.find((v) => v.id === vid);
+      const variation = cam.variations.find((v) => v.id === sel.variationId);
       if (!variation) return null;
       return {
         ...variation,
@@ -54,25 +55,56 @@ function App() {
         camDiscount: cam.discount,
         camPrice: cam.price,
         camImage: cam.image,
-        qty: store.cameraVariations[key] || 0,
+        qty: sel.quantity,
       };
     })
     .filter((item): item is NonNullable<typeof item> => item != null);
 
-  const selectedSensors = store.sensorOrder
-    .map((id) => sensors.find((s) => s.id === id))
+  const selectedSensors = store.sensors
+    .map((sel) => {
+      const s = sensors.find((s) => s.id === sel.sensorId);
+      return s ? { ...s, qty: sel.quantity } : null;
+    })
     .filter((item): item is NonNullable<typeof item> => item != null);
 
-  const selectedAccessories = store.accessoryOrder
-    .map((id) => accessories.find((a) => a.id === id))
+  const selectedAccessories = store.accessories
+    .map((sel) => {
+      const a = accessories.find((a) => a.id === sel.accessoryId);
+      return a ? { ...a, qty: sel.quantity } : null;
+    })
     .filter((item): item is NonNullable<typeof item> => item != null);
 
   const discountPrice = (price: number, discount: number) =>
     (price - (discount / 100) * price).toFixed(2);
 
+  const discountedValue = (price: number, discount: number) =>
+    price - (discount / 100) * price;
+
+  const totalOriginal = (() => {
+    let sum = 0;
+    for (const v of selectedCameraVariations) sum += v.qty * v.camPrice;
+    for (const s of selectedSensors) sum += s.qty * s.price;
+    for (const a of selectedAccessories) sum += a.qty * a.price;
+    return sum;
+  })();
+
+  const totalDiscounted = (() => {
+    let sum = 0;
+    for (const v of selectedCameraVariations)
+      sum += v.qty * discountedValue(v.camPrice, v.camDiscount);
+    for (const s of selectedSensors)
+      sum += s.qty * discountedValue(s.price, s.discount);
+    for (const a of selectedAccessories)
+      sum += a.qty * discountedValue(a.price, a.discount);
+    return sum;
+  })();
+
+  const savings = totalOriginal - totalDiscounted;
+  const installment = totalDiscounted / 12;
+
   return (
-    <div className="container py-10! grid xl:grid-cols-3 items-start gap-10">
-      <div className="lg:col-span-2">
+    <div className="container py-10! grid xl:grid-cols-3 items-start gap-3 xl:gap-10">
+      <div className="xl:col-span-2">
         <div className="space-y-3">
           <Accordion
             step={1}
@@ -83,7 +115,10 @@ function App() {
             }
           >
             <AccordionItem value="cameras">
-              <AccordionTrigger className="py-3 text-md sm:text-xl font-medium">
+              <AccordionTrigger
+                className="py-3 text-md sm:text-xl font-medium"
+                count={store.cameras.length}
+              >
                 <div className="flex gap-2 items-center">
                   <Camera className="text-text-primary" />
                   Choose your cameras
@@ -129,7 +164,10 @@ function App() {
             }
           >
             <AccordionItem value="sensors">
-              <AccordionTrigger className="py-3 text-md sm:text-xl font-medium">
+              <AccordionTrigger
+                className="py-3 text-md sm:text-xl font-medium"
+                count={store.sensors.length}
+              >
                 <div className="flex gap-2 items-center">
                   <MemoryStick className="text-text-primary" />
                   Choose your sensors & modules
@@ -175,7 +213,10 @@ function App() {
             }
           >
             <AccordionItem value="accessories">
-              <AccordionTrigger className="py-3 text-md sm:text-xl font-medium">
+              <AccordionTrigger
+                className="py-3 text-md sm:text-xl font-medium"
+                count={store.accessories.length}
+              >
                 <div className="flex gap-2 items-center">
                   <Cable className="text-text-primary" />
                   Choose your accessories
@@ -222,7 +263,10 @@ function App() {
             }
           >
             <AccordionItem value="plans">
-              <AccordionTrigger className="py-3 text-md sm:text-xl font-medium">
+              <AccordionTrigger
+                className="py-3 text-md sm:text-xl font-medium"
+                count={store.plan !== null ? 1 : 0}
+              >
                 <div className="flex gap-2 items-center">
                   <Shield className="text-text-primary" />
                   Choose your plan
@@ -240,7 +284,7 @@ function App() {
         </div>
       </div>
       {hasSelection && (
-        <div className="bg-secondary py-3 px-4 rounded-lg">
+        <div className="bg-secondary py-3 px-4 xl:rounded-lg">
           <span className="uppercase tracking-wider text-xs text-text-primary font-semibold">
             review
           </span>
@@ -255,9 +299,7 @@ function App() {
           {selectedCameraVariations.length > 0 && (
             <>
               <Seperator />
-              <h6 className="uppercase text-[12px] text-[#A8B2BD]">
-                cameras
-              </h6>
+              <h6 className="uppercase text-[12px] text-[#A8B2BD]">cameras</h6>
               <div className="mt-2 space-y-4">
                 {selectedCameraVariations.map((v) => (
                   <div
@@ -267,9 +309,7 @@ function App() {
                     <div className="flex gap-2 items-center">
                       <div className="p-1 bg-white rounded-sm">
                         <img
-                          src={
-                            v.color?.image.url || v.camImage.url
-                          }
+                          src={v.color?.image.url || v.camImage.url}
                           alt={v.camTitle}
                           width={32}
                           loading="lazy"
@@ -286,18 +326,10 @@ function App() {
                         qty={v.qty}
                         max={v.quantity}
                         onMinus={() =>
-                          store.setCameraVariationQty(
-                            v.camId,
-                            v.id,
-                            v.qty - 1,
-                          )
+                          store.setCameraVariationQty(v.camId, v.id, v.qty - 1)
                         }
                         onPlus={() =>
-                          store.setCameraVariationQty(
-                            v.camId,
-                            v.id,
-                            v.qty + 1,
-                          )
+                          store.setCameraVariationQty(v.camId, v.id, v.qty + 1)
                         }
                       />
                       <div className="flex text-[16px] flex-col justify-center items-center">
@@ -315,11 +347,7 @@ function App() {
                         </div>
                         {v.camDiscount !== 0 && (
                           <div className="text-primary text-[14px] font-semibold">
-                            ${" "}
-                            {discountPrice(
-                              v.camPrice,
-                              v.camDiscount,
-                            )}
+                            $ {discountPrice(v.camPrice, v.camDiscount)}
                           </div>
                         )}
                       </div>
@@ -338,7 +366,7 @@ function App() {
               </h6>
               <div className="mt-2 space-y-4">
                 {selectedSensors.map((s) => {
-                  const qty = store.sensors[s.id] || 0;
+                  const qty = s.qty;
                   return (
                     <div
                       key={s.id}
@@ -361,12 +389,8 @@ function App() {
                           variant="white"
                           qty={qty}
                           max={s.quantity}
-                          onMinus={() =>
-                            store.setSensorQty(s.id, qty - 1)
-                          }
-                          onPlus={() =>
-                            store.setSensorQty(s.id, qty + 1)
-                          }
+                          onMinus={() => store.setSensorQty(s.id, qty - 1)}
+                          onPlus={() => store.setSensorQty(s.id, qty + 1)}
                         />
                         <div className="flex text-[16px] flex-col justify-center items-center">
                           <div
@@ -383,8 +407,7 @@ function App() {
                           </div>
                           {s.discount !== 0 && (
                             <div className="text-primary text-[14px] font-semibold">
-                              ${" "}
-                              {discountPrice(s.price, s.discount)}
+                              $ {discountPrice(s.price, s.discount)}
                             </div>
                           )}
                         </div>
@@ -404,7 +427,7 @@ function App() {
               </h6>
               <div className="mt-2 space-y-4">
                 {selectedAccessories.map((a) => {
-                  const qty = store.accessories[a.id] || 0;
+                  const qty = a.qty;
                   return (
                     <div
                       key={a.id}
@@ -427,12 +450,8 @@ function App() {
                           variant="white"
                           qty={qty}
                           max={a.quantity}
-                          onMinus={() =>
-                            store.setAccessoryQty(a.id, qty - 1)
-                          }
-                          onPlus={() =>
-                            store.setAccessoryQty(a.id, qty + 1)
-                          }
+                          onMinus={() => store.setAccessoryQty(a.id, qty - 1)}
+                          onPlus={() => store.setAccessoryQty(a.id, qty + 1)}
                         />
                         <div className="flex text-[16px] flex-col justify-center items-center">
                           <div
@@ -449,8 +468,7 @@ function App() {
                           </div>
                           {a.discount !== 0 && (
                             <div className="text-primary text-[14px] font-semibold">
-                              ${" "}
-                              {discountPrice(a.price, a.discount)}
+                              $ {discountPrice(a.price, a.discount)}
                             </div>
                           )}
                         </div>
@@ -462,58 +480,108 @@ function App() {
             </>
           )}
 
-          {store.plan !== null && (() => {
-            const plan = plans.find((p) => p.id === store.plan);
-            if (!plan) return null;
-            return (
-              <>
-                <Seperator />
-                <h6 className="uppercase text-[12px] text-[#A8B2BD]">
-                  plan
-                </h6>
-                <div className="mt-2">
-                  <div className="flex justify-between items-center">
-                    <h6 className="text-sm">{plan.title}</h6>
-                    <div className="flex text-[16px] flex-col justify-center items-center">
-                      {plan.price === 0 ? (
-                        <span className="text-primary text-[14px] font-semibold">
-                          Free
-                        </span>
-                      ) : (
-                        <>
-                          <div
-                            className={`relative text-[14px] font-semibold w-fit ${
-                              plan.discount !== 0
-                                ? "text-text-primary"
-                                : "text-primary"
-                            }`}
-                          >
-                            $ {plan.price.toFixed(2)}
-                            {plan.discount !== 0 && (
-                              <div className="absolute top-1/2 w-full h-px bg-text-primary -translate-y-1/2"></div>
-                            )}
-                          </div>
-                          {plan.discount !== 0 && (
-                            <div className="text-primary text-[14px] font-semibold">
-                              ${" "}
-                              {discountPrice(
-                                plan.price,
-                                plan.discount,
+          {store.plan !== null &&
+            (() => {
+              const plan = plans.find((p) => p.id === store.plan);
+              if (!plan) return null;
+              return (
+                <>
+                  <Seperator />
+                  <h6 className="uppercase text-[12px] text-[#A8B2BD]">plan</h6>
+                  <div className="mt-2">
+                    <div className="flex justify-between items-center">
+                      <h6 className="text-sm">{plan.title}</h6>
+                      <div className="flex text-[16px] flex-col justify-center items-center">
+                        {plan.price === 0 ? (
+                          <span className="text-primary text-[14px] font-semibold">
+                            Free
+                          </span>
+                        ) : (
+                          <>
+                            <div
+                              className={`relative text-[14px] font-semibold w-fit ${
+                                plan.discount !== 0
+                                  ? "text-text-primary"
+                                  : "text-primary"
+                              }`}
+                            >
+                              $ {plan.price.toFixed(2)}
+                              {plan.discount !== 0 && (
+                                <div className="absolute top-1/2 w-full h-px bg-text-primary -translate-y-1/2"></div>
                               )}
                             </div>
-                          )}
-                        </>
-                      )}
+                            {plan.discount !== 0 && (
+                              <div className="text-primary text-[14px] font-semibold">
+                                $ {discountPrice(plan.price, plan.discount)}
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
+                </>
+              );
+            })()}
+          <Seperator />
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex gap-2 items-center">
+              <div className="p-2 bg-white rounded-sm w-fit">
+                <Truck size={25} className="text-[#0aa288]" />
+              </div>
+              <p className="text-[14px] font-semibold">Fast Shipping</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="relative text-text-primary text-[14px] font-semibold">
+                <span>$5.99</span>
+                <div className="absolute top-1/2 w-full h-px bg-text-primary -translate-y-1/2"></div>
+              </div>
+              <div className="text-primary uppercase text-[14px] font-semibold">
+                free
+              </div>
+            </div>
+          </div>
+          <div className="mt-5 flex justify-between items-center gap-2">
+            <img
+              src={badge}
+              alt="badge"
+              loading="lazy"
+              className="object-contain w-[100px]"
+            />
+            <div className="flex flex-col gap-2 items-end">
+              <p className="rounded-sm bg-primary px-2 font-semibold py-1 text-xs text-white">
+                as low as ${installment.toFixed(2)}/mo
+              </p>
+              <div className="flex gap-2 items-end">
+                <div className="relative text-text-primary text-lg font-semibold">
+                  <span>${totalOriginal.toFixed(2)}</span>
+                  <div className="absolute top-1/2 w-full h-px bg-text-primary -translate-y-1/2"></div>
                 </div>
-              </>
-            );
-          })()}
+                <p className="font-bold text-primary text-2xl">${totalDiscounted.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+          {savings > 0 && (
+            <p className="mt-4 text-green-600 text-center font-semibold text-xs">
+              Congrats! You're saving ${savings.toFixed(2)} on your security bundle!
+            </p>
+          )}
+          <Button className="w-full mt-2 h-[48px] text-[17px] font-semibold rounded-sm">
+            Checkout
+          </Button>
+          <button
+            onClick={() => {
+              store.saveForLater();
+              toast.success("Bundle saved for later!");
+            }}
+            className="underline mx-auto block text-text-primary cursor-pointer text-sm italic mt-1 text-center"
+          >
+            Save my bundle for later
+          </button>
         </div>
       )}
     </div>
   );
-};
+}
 
 export default App;

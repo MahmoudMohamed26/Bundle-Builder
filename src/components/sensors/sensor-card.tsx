@@ -3,8 +3,10 @@ import useBundleStore from "../../store/bundle-store";
 import QuantitySelector from "../global/quantity-selector";
 
 export default function SensorCard({ sensor }: { sensor: SensorType }) {
-  const qty = useBundleStore((s) => s.sensors[sensor.id] || 0);
+  const storeSensors = useBundleStore((s) => s.sensors);
   const setSensorQty = useBundleStore((s) => s.setSensorQty);
+  const sel = storeSensors.find((s) => s.sensorId === sensor.id);
+  const qty = sel?.quantity ?? 0;
 
   return (
     <div

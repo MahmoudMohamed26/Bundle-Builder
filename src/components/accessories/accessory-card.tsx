@@ -7,8 +7,12 @@ export default function AccessoryCard({
 }: {
   accessory: AccessoryType;
 }) {
-  const qty = useBundleStore((s) => s.accessories[accessory.id] || 0);
+  const storeAccessories = useBundleStore((s) => s.accessories);
   const setAccessoryQty = useBundleStore((s) => s.setAccessoryQty);
+  const sel = storeAccessories.find(
+    (a) => a.accessoryId === accessory.id,
+  );
+  const qty = sel?.quantity ?? 0;
 
   return (
     <div

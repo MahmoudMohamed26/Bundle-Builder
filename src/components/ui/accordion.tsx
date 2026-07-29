@@ -36,15 +36,16 @@ function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
 function AccordionTrigger({
   className,
   children,
+  count,
   ...props
-}: AccordionPrimitive.Trigger.Props) {
+}: AccordionPrimitive.Trigger.Props & { count?: number }) {
   const { step, total } = useContext(StepContext);
   return (
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "group/accordion-trigger aria-expanded:bg-secondary! flex-1 relative rounded-t-lg border border-transparent py-2.5 text-left text-sm font-medium transition-all delay-200 outline-none focus-visible:after:border-ring aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-expanded:delay-0",
+          "group/accordion-trigger aria-expanded:bg-secondary! flex-1 relative xl:rounded-t-lg border border-transparent py-2.5 text-left text-sm font-medium transition-all delay-200 outline-none focus-visible:after:border-ring aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-expanded:delay-0",
           className,
         )}
         {...props}
@@ -53,9 +54,17 @@ function AccordionTrigger({
         <StepHeader step={step} total={total} />
         <div className="flex flex-1 px-4 pt-3 items-center justify-between">
           {children}
-          <span className="text-primary text-md transition-transform duration-200 group-aria-expanded/accordion-trigger:rotate-180">
-            ⏷
-          </span>
+          <div className="flex items-center gap-2">
+            {count !== undefined && count > 0 && (
+              <span className="sm:text-primary py-1 px-3 text-xs rounded-full bg-primary sm:bg-transparent sm:rounded-none sm:p-0! text-white font-normal">
+                {`${count}`}
+                <span className="hidden sm:inline"> Selected</span>
+              </span>
+            )}
+            <span className="text-primary text-md transition-transform duration-200 group-aria-expanded/accordion-trigger:rotate-180">
+              ⏷
+            </span>
+          </div>
         </div>
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
@@ -70,7 +79,7 @@ function AccordionContent({
   return (
     <AccordionPrimitive.Panel
       data-slot="accordion-content"
-      className="overflow-hidden px-4 rounded-b-lg bg-secondary text-sm data-open:animate-accordion-down data-closed:animate-accordion-up"
+      className="overflow-hidden px-4 xl:rounded-b-lg bg-secondary text-sm data-open:animate-accordion-down data-closed:animate-accordion-up"
       {...props}
     >
       <div
