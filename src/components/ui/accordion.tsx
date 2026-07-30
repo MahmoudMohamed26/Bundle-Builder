@@ -45,18 +45,18 @@ function AccordionTrigger({
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "group/accordion-trigger aria-expanded:bg-secondary! flex-1 relative xl:rounded-t-lg border border-transparent py-2.5 text-left text-sm font-medium transition-all delay-200 outline-none focus-visible:after:border-ring aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-expanded:delay-0",
+          "group/accordion-trigger aria-expanded:bg-secondary! flex-1 relative xl:rounded-t-lg border border-transparent py-4! text-left text-sm font-medium transition-all delay-200 outline-none focus-visible:after:border-ring aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-expanded:delay-0",
           className,
         )}
         {...props}
       >
         <div className="bg-black h-px w-full absolute bottom-0 opacity-100 visible transition-all duration-0 delay-200 group-aria-expanded/accordion-trigger:opacity-0 group-aria-expanded/accordion-trigger:invisible group-aria-expanded/accordion-trigger:delay-0"></div>
         <StepHeader step={step} total={total} />
-        <div className="flex flex-1 px-4 pt-3 items-center justify-between">
+        <div className="flex flex-1 px-4 pt-4 items-center justify-between">
           {children}
           <div className="flex items-center gap-2">
             {count !== undefined && count > 0 && (
-              <span className="sm:text-primary py-1 px-3 text-xs rounded-full bg-primary sm:bg-transparent sm:rounded-none sm:p-0! text-white font-normal">
+              <span className="sm:text-primary py-1 px-3 text-sm rounded-full bg-primary sm:bg-transparent sm:rounded-none sm:p-0! text-white font-normal">
                 {`${count}`}
                 <span className="hidden sm:inline"> Selected</span>
               </span>
@@ -84,7 +84,7 @@ function AccordionContent({
     >
       <div
         className={cn(
-          "h-(--accordion-panel-height) pb-3 data-ending-style:h-0 data-starting-style:h-0 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
+          "h-(--accordion-panel-height) pb-4 data-ending-style:h-0 data-starting-style:h-0 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
           className,
         )}
       >

@@ -1,26 +1,10 @@
 import { useState } from "react";
-import { Cable, Camera, MemoryStick, Shield, Truck } from "lucide-react";
 import "./App.css";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "./components/ui/accordion";
-import cameras from "./data/cameras-data";
-import sensors from "./data/sensors-data";
-import accessories from "./data/accessories-data";
-import plans from "./data/plans-data";
-import CameraCard from "./components/cameras/camera-card";
-import SensorCard from "./components/sensors/sensor-card";
-import AccessoryCard from "./components/accessories/accessory-card";
-import PlanCard from "./components/plans/plan-card";
-import { Button } from "./components/ui/button";
-import { toast } from "sonner";
-import Seperator from "./components/global/seperator";
-import QuantitySelector from "./components/global/quantity-selector";
-import useBundleStore from "./store/bundle-store";
-import badge from "./assets/badge.png";
+import CamerasStep from "./components/steps/cameras-step";
+import SensorsStep from "./components/steps/sensors-step";
+import AccessoriesStep from "./components/steps/accessories-step";
+import PlansStep from "./components/steps/plans-step";
+import ReviewSidebar from "./components/review/review-sidebar";
 
 function App() {
   const [open, setOpen] = useState<Record<string, string[]>>({
@@ -30,556 +14,61 @@ function App() {
     plans: [],
   });
 
-  const store = useBundleStore();
-
-  const hasSelection =
-    store.cameras.length > 0 ||
-    store.sensors.length > 0 ||
-    store.accessories.length > 0 ||
-    store.plan !== null;
-
-  const handleNext = (current: string, next: string) => {
-    setOpen((prev) => ({ ...prev, [current]: [], [next]: [next] }));
-  };
-
-  const selectedCameraVariations = store.cameras
-    .map((sel) => {
-      const cam = cameras.find((c) => c.id === sel.cameraId);
-      if (!cam) return null;
-      const variation = cam.variations.find((v) => v.id === sel.variationId);
-      if (!variation) return null;
-      return {
-        ...variation,
-        camId: cam.id,
-        camTitle: cam.title,
-        camDiscount: cam.discount,
-        camPrice: cam.price,
-        camImage: cam.image,
-        qty: sel.quantity,
-      };
-    })
-    .filter((item): item is NonNullable<typeof item> => item != null);
-
-  const selectedSensors = store.sensors
-    .map((sel) => {
-      const s = sensors.find((s) => s.id === sel.sensorId);
-      return s ? { ...s, qty: sel.quantity } : null;
-    })
-    .filter((item): item is NonNullable<typeof item> => item != null);
-
-  const selectedAccessories = store.accessories
-    .map((sel) => {
-      const a = accessories.find((a) => a.id === sel.accessoryId);
-      return a ? { ...a, qty: sel.quantity } : null;
-    })
-    .filter((item): item is NonNullable<typeof item> => item != null);
-
-  const discountPrice = (price: number, discount: number) =>
-    (price - (discount / 100) * price).toFixed(2);
-
-  const discountedValue = (price: number, discount: number) =>
-    price - (discount / 100) * price;
-
-  const totalOriginal = (() => {
-    let sum = 0;
-    for (const v of selectedCameraVariations) sum += v.qty * v.camPrice;
-    for (const s of selectedSensors) sum += s.qty * s.price;
-    for (const a of selectedAccessories) sum += a.qty * a.price;
-    return sum;
-  })();
-
-  const totalDiscounted = (() => {
-    let sum = 0;
-    for (const v of selectedCameraVariations)
-      sum += v.qty * discountedValue(v.camPrice, v.camDiscount);
-    for (const s of selectedSensors)
-      sum += s.qty * discountedValue(s.price, s.discount);
-    for (const a of selectedAccessories)
-      sum += a.qty * discountedValue(a.price, a.discount);
-    return sum;
-  })();
-
-  const savings = totalOriginal - totalDiscounted;
-  const installment = totalDiscounted / 12;
-
   return (
-    <div className="container py-10! grid xl:grid-cols-3 items-start gap-3 xl:gap-10">
-      <div className="xl:col-span-2">
-        <div className="space-y-3">
-          <Accordion
-            step={1}
-            total={4}
-            value={open.cameras}
-            onValueChange={(val) =>
-              setOpen((prev) => ({ ...prev, cameras: val }))
-            }
-          >
-            <AccordionItem value="cameras">
-              <AccordionTrigger
-                className="py-3 text-md sm:text-xl font-medium"
-                count={store.cameras.length}
-              >
-                <div className="flex gap-2 items-center">
-                  <Camera className="text-text-primary" />
-                  Choose your cameras
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid sm:grid-cols-2 gap-3">
-                  {cameras.map((cam, i) => {
-                    const lastOdd =
-                      cameras.length % 2 !== 0 && i === cameras.length - 1;
-                    return (
-                      <div
-                        key={cam.id}
-                        className={
-                          lastOdd
-                            ? "sm:col-span-2 xl:max-w-[500px] 2xl:max-w-[379px] m-auto flex justify-center"
-                            : ""
-                        }
-                      >
-                        <CameraCard cam={cam} />
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="mt-5 justify-center flex">
-                  <Button
-                    variant="outline"
-                    className="text-lg font-bold"
-                    onClick={() => handleNext("cameras", "sensors")}
-                  >
-                    Next: Choose your plan
-                  </Button>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-          <Accordion
-            step={2}
-            total={4}
-            value={open.sensors}
-            onValueChange={(val) =>
-              setOpen((prev) => ({ ...prev, sensors: val }))
-            }
-          >
-            <AccordionItem value="sensors">
-              <AccordionTrigger
-                className="py-3 text-md sm:text-xl font-medium"
-                count={store.sensors.length}
-              >
-                <div className="flex gap-2 items-center">
-                  <MemoryStick className="text-text-primary" />
-                  Choose your sensors & modules
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid sm:grid-cols-2 gap-3">
-                  {sensors.map((sensor, i) => {
-                    const lastOdd =
-                      sensors.length % 2 !== 0 && i === sensors.length - 1;
-                    return (
-                      <div
-                        key={sensor.id}
-                        className={
-                          lastOdd
-                            ? "sm:col-span-2 xl:max-w-[500px] 2xl:max-w-[379px] m-auto flex justify-center"
-                            : ""
-                        }
-                      >
-                        <SensorCard sensor={sensor} />
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="mt-5 justify-center flex">
-                  <Button
-                    variant="outline"
-                    className="text-lg font-bold"
-                    onClick={() => handleNext("sensors", "accessories")}
-                  >
-                    Next: Choose your plan
-                  </Button>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-          <Accordion
-            step={3}
-            total={4}
-            value={open.accessories}
-            onValueChange={(val) =>
-              setOpen((prev) => ({ ...prev, accessories: val }))
-            }
-          >
-            <AccordionItem value="accessories">
-              <AccordionTrigger
-                className="py-3 text-md sm:text-xl font-medium"
-                count={store.accessories.length}
-              >
-                <div className="flex gap-2 items-center">
-                  <Cable className="text-text-primary" />
-                  Choose your accessories
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid sm:grid-cols-2 gap-3">
-                  {accessories.map((accessory, i) => {
-                    const lastOdd =
-                      accessories.length % 2 !== 0 &&
-                      i === accessories.length - 1;
-                    return (
-                      <div
-                        key={accessory.id}
-                        className={
-                          lastOdd
-                            ? "sm:col-span-2 xl:max-w-[500px] 2xl:max-w-[379px] m-auto flex justify-center"
-                            : ""
-                        }
-                      >
-                        <AccessoryCard accessory={accessory} />
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="mt-5 justify-center flex">
-                  <Button
-                    variant="outline"
-                    className="text-lg font-bold"
-                    onClick={() => handleNext("accessories", "plans")}
-                  >
-                    Next: Choose your plan
-                  </Button>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-          <Accordion
-            step={4}
-            total={4}
-            value={open.plans}
-            onValueChange={(val) =>
-              setOpen((prev) => ({ ...prev, plans: val }))
-            }
-          >
-            <AccordionItem value="plans">
-              <AccordionTrigger
-                className="py-3 text-md sm:text-xl font-medium"
-                count={store.plan !== null ? 1 : 0}
-              >
-                <div className="flex gap-2 items-center">
-                  <Shield className="text-text-primary" />
-                  Choose your plan
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="grid sm:grid-cols-3 gap-3 py-3">
-                  {plans.map((plan) => (
-                    <PlanCard key={plan.id} plan={plan} />
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-      </div>
-      {hasSelection && (
-        <div className="bg-secondary py-3 px-4 xl:rounded-lg">
-          <span className="uppercase tracking-wider text-xs text-text-primary font-semibold">
-            review
-          </span>
-          <h2 className="text-[22px] font-semibold mt-4">
-            Your security system
-          </h2>
-          <p className="mt-2 text-sm text-text-primary max-w-xs">
-            Review your personalized protection system designed to keep what
-            matters most safe.
-          </p>
-
-          {selectedCameraVariations.length > 0 && (
-            <>
-              <Seperator />
-              <h6 className="uppercase text-[12px] text-[#A8B2BD]">cameras</h6>
-              <div className="mt-2 space-y-4">
-                {selectedCameraVariations.map((v) => (
-                  <div
-                    key={`${v.camId}-${v.id}`}
-                    className="flex justify-between items-center"
-                  >
-                    <div className="flex gap-2 items-center">
-                      <div className="p-1 bg-white rounded-sm">
-                        <img
-                          src={v.color?.image.url || v.camImage.url}
-                          alt={v.camTitle}
-                          width={32}
-                          loading="lazy"
-                          className="object-contain"
-                        />
-                      </div>
-                      <div>
-                        <h6 className="text-sm max-w-[150px]">{v.camTitle}</h6>
-                      </div>
-                    </div>
-                    <div className="flex gap-4 items-center">
-                      <QuantitySelector
-                        variant="white"
-                        qty={v.qty}
-                        max={v.quantity}
-                        onMinus={() =>
-                          store.setCameraVariationQty(v.camId, v.id, v.qty - 1)
-                        }
-                        onPlus={() =>
-                          store.setCameraVariationQty(v.camId, v.id, v.qty + 1)
-                        }
-                      />
-                      <div className="flex text-[16px] flex-col justify-center items-center">
-                        <div
-                          className={`relative text-[14px] font-semibold w-fit ${
-                            v.camDiscount !== 0
-                              ? "text-text-primary"
-                              : "text-primary"
-                          }`}
-                        >
-                          $ {v.camPrice.toFixed(2)}
-                          {v.camDiscount !== 0 && (
-                            <div className="absolute top-1/2 w-full h-px bg-text-primary -translate-y-1/2"></div>
-                          )}
-                        </div>
-                        {v.camDiscount !== 0 && (
-                          <div className="text-primary text-[14px] font-semibold">
-                            $ {discountPrice(v.camPrice, v.camDiscount)}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          {selectedSensors.length > 0 && (
-            <>
-              <Seperator />
-              <h6 className="uppercase text-[12px] text-[#A8B2BD]">
-                sensors & modules
-              </h6>
-              <div className="mt-2 space-y-4">
-                {selectedSensors.map((s) => {
-                  const qty = s.qty;
-                  return (
-                    <div
-                      key={s.id}
-                      className="flex justify-between items-center"
-                    >
-                      <div className="flex gap-2 items-center">
-                        <div className="p-1 bg-white rounded-sm">
-                          <img
-                            src={s.image.url}
-                            alt={s.title}
-                            width={28}
-                            loading="lazy"
-                            className="object-contain"
-                          />
-                        </div>
-                        <h6 className="text-sm max-w-[150px]">{s.title}</h6>
-                      </div>
-                      <div className="flex gap-4 items-center">
-                        <QuantitySelector
-                          variant="white"
-                          qty={qty}
-                          max={s.quantity}
-                          onMinus={() => store.setSensorQty(s.id, qty - 1)}
-                          onPlus={() => store.setSensorQty(s.id, qty + 1)}
-                        />
-                        <div className="flex text-[16px] flex-col justify-center items-center">
-                          <div
-                            className={`relative text-[14px] font-semibold w-fit ${
-                              s.discount !== 0
-                                ? "text-text-primary"
-                                : "text-primary"
-                            }`}
-                          >
-                            $ {s.price.toFixed(2)}
-                            {s.discount !== 0 && (
-                              <div className="absolute top-1/2 w-full h-px bg-text-primary -translate-y-1/2"></div>
-                            )}
-                          </div>
-                          {s.discount !== 0 && (
-                            <div className="text-primary text-[14px] font-semibold">
-                              $ {discountPrice(s.price, s.discount)}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-
-          {selectedAccessories.length > 0 && (
-            <>
-              <Seperator />
-              <h6 className="uppercase text-[12px] text-[#A8B2BD]">
-                accessories
-              </h6>
-              <div className="mt-2 space-y-4">
-                {selectedAccessories.map((a) => {
-                  const qty = a.qty;
-                  return (
-                    <div
-                      key={a.id}
-                      className="flex justify-between items-center"
-                    >
-                      <div className="flex gap-2 items-center">
-                        <div className="p-1 bg-white rounded-sm">
-                          <img
-                            src={a.image.url}
-                            alt={a.title}
-                            width={28}
-                            loading="lazy"
-                            className="object-contain"
-                          />
-                        </div>
-                        <h6 className="text-sm max-w-[150px]">{a.title}</h6>
-                      </div>
-                      <div className="flex gap-4 items-center">
-                        <QuantitySelector
-                          variant="white"
-                          qty={qty}
-                          max={a.quantity}
-                          onMinus={() => store.setAccessoryQty(a.id, qty - 1)}
-                          onPlus={() => store.setAccessoryQty(a.id, qty + 1)}
-                        />
-                        <div className="flex text-[16px] flex-col justify-center items-center">
-                          <div
-                            className={`relative text-[14px] font-semibold w-fit ${
-                              a.discount !== 0
-                                ? "text-text-primary"
-                                : "text-primary"
-                            }`}
-                          >
-                            $ {a.price.toFixed(2)}
-                            {a.discount !== 0 && (
-                              <div className="absolute top-1/2 w-full h-px bg-text-primary -translate-y-1/2"></div>
-                            )}
-                          </div>
-                          {a.discount !== 0 && (
-                            <div className="text-primary text-[14px] font-semibold">
-                              $ {discountPrice(a.price, a.discount)}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-
-          {store.plan !== null &&
-            (() => {
-              const plan = plans.find((p) => p.id === store.plan);
-              if (!plan) return null;
-              return (
-                <>
-                  <Seperator />
-                  <h6 className="uppercase text-[12px] text-[#A8B2BD]">plan</h6>
-                  <div className="mt-2">
-                    <div className="flex justify-between items-center">
-                      <h6 className="text-sm">{plan.title}</h6>
-                      <div className="flex text-[16px] flex-col justify-center items-center">
-                        {plan.price === 0 ? (
-                          <span className="text-primary text-[14px] font-semibold">
-                            Free
-                          </span>
-                        ) : (
-                          <>
-                            <div
-                              className={`relative text-[14px] font-semibold w-fit ${
-                                plan.discount !== 0
-                                  ? "text-text-primary"
-                                  : "text-primary"
-                              }`}
-                            >
-                              $ {plan.price.toFixed(2)}
-                              {plan.discount !== 0 && (
-                                <div className="absolute top-1/2 w-full h-px bg-text-primary -translate-y-1/2"></div>
-                              )}
-                            </div>
-                            {plan.discount !== 0 && (
-                              <div className="text-primary text-[14px] font-semibold">
-                                $ {discountPrice(plan.price, plan.discount)}
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </>
-              );
-            })()}
-          <Seperator />
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex gap-2 items-center">
-              <div className="p-2 bg-white rounded-sm w-fit">
-                <Truck size={25} className="text-[#0aa288]" />
-              </div>
-              <p className="text-[14px] font-semibold">Fast Shipping</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="relative text-text-primary text-[14px] font-semibold">
-                <span>$5.99</span>
-                <div className="absolute top-1/2 w-full h-px bg-text-primary -translate-y-1/2"></div>
-              </div>
-              <div className="text-primary uppercase text-[14px] font-semibold">
-                free
-              </div>
-            </div>
-          </div>
-          <div className="mt-5 flex justify-between items-center gap-2">
-            <img
-              src={badge}
-              alt="badge"
-              loading="lazy"
-              className="object-contain w-[100px]"
+    <div className="container">
+      <h1 className="text-3xl mt-10 font-bold">Let's Get Started</h1>
+      <div className="py-5 grid xl:grid-cols-3 items-start gap-3 xl:gap-10">
+        <div className="xl:col-span-2">
+          <div className="space-y-3">
+            <CamerasStep
+              value={open.cameras}
+              onValueChange={(val) =>
+                setOpen((prev) => ({ ...prev, cameras: val as string[] }))
+              }
+              onNext={() =>
+                setOpen((prev) => ({
+                  ...prev,
+                  cameras: [],
+                  sensors: ["sensors"],
+                }))
+              }
             />
-            <div className="flex flex-col gap-2 items-end">
-              <p className="rounded-sm bg-primary px-2 font-semibold py-1 text-xs text-white">
-                as low as ${installment.toFixed(2)}/mo
-              </p>
-              <div className="flex gap-2 items-end">
-                <div className="relative text-text-primary text-lg font-semibold">
-                  <span>${totalOriginal.toFixed(2)}</span>
-                  <div className="absolute top-1/2 w-full h-px bg-text-primary -translate-y-1/2"></div>
-                </div>
-                <p className="font-bold text-primary text-2xl">${totalDiscounted.toFixed(2)}</p>
-              </div>
-            </div>
+            <SensorsStep
+              value={open.sensors}
+              onValueChange={(val) =>
+                setOpen((prev) => ({ ...prev, sensors: val as string[] }))
+              }
+              onNext={() =>
+                setOpen((prev) => ({
+                  ...prev,
+                  sensors: [],
+                  accessories: ["accessories"],
+                }))
+              }
+            />
+            <AccessoriesStep
+              value={open.accessories}
+              onValueChange={(val) =>
+                setOpen((prev) => ({ ...prev, accessories: val as string[] }))
+              }
+              onNext={() =>
+                setOpen((prev) => ({
+                  ...prev,
+                  accessories: [],
+                  plans: ["plans"],
+                }))
+              }
+            />
+            <PlansStep
+              value={open.plans}
+              onValueChange={(val) =>
+                setOpen((prev) => ({ ...prev, plans: val as string[] }))
+              }
+            />
           </div>
-          {savings > 0 && (
-            <p className="mt-4 text-green-600 text-center font-semibold text-xs">
-              Congrats! You're saving ${savings.toFixed(2)} on your security bundle!
-            </p>
-          )}
-          <Button className="w-full mt-2 h-[48px] text-[17px] font-semibold rounded-sm">
-            Checkout
-          </Button>
-          <button
-            onClick={() => {
-              store.saveForLater();
-              toast.success("Bundle saved for later!");
-            }}
-            className="underline mx-auto block text-text-primary cursor-pointer text-sm italic mt-1 text-center"
-          >
-            Save my bundle for later
-          </button>
         </div>
-      )}
+        <ReviewSidebar />
+      </div>
     </div>
   );
 }

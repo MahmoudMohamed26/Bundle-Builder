@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import type { SensorType } from "../../lib/types/sensor";
 import useBundleStore from "../../store/bundle-store";
 import QuantitySelector from "../global/quantity-selector";
@@ -28,7 +29,7 @@ export default function SensorCard({ sensor }: { sensor: SensorType }) {
         <h2 className="text-[16px] font-semibold">{sensor.title}</h2>
         <p className="text-text-primary text-sm mb-3!">
           {sensor.description}{" "}
-          <span className="text-blue-600 underline text-sm">Learn More</span>
+           <Link to={`/products/${sensor.id}`} className="text-blue-600 underline text-sm">Learn More</Link>
         </p>
         <div className="flex justify-between items-center gap-2">
           <div className="mt-3">

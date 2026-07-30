@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import type { CameraType } from "../../lib/types/camera";
 import useBundleStore from "../../store/bundle-store";
 import QuantitySelector from "../global/quantity-selector";
@@ -42,7 +43,12 @@ export default function CameraCard({ cam }: { cam: CameraType }) {
         <h2 className="text-[16px] font-semibold">{cam.title}</h2>
         <p className="text-text-primary text-sm mb-3!">
           {cam.description}{" "}
-          <span className="text-blue-600 underline text-sm">Learn More</span>
+          <Link
+            to={`/products/${cam.id}`}
+            className="text-blue-600 underline text-sm"
+          >
+            Learn More
+          </Link>
         </p>
         {cam.variations.length > 1 && (
           <div className="mt-1 flex gap-1 items-center flex-wrap">
@@ -79,18 +85,10 @@ export default function CameraCard({ cam }: { cam: CameraType }) {
               qty={activeQty}
               max={activeVariation.quantity}
               onMinus={() =>
-                setCameraVariationQty(
-                  cam.id,
-                  activeVariation.id,
-                  activeQty - 1,
-                )
+                setCameraVariationQty(cam.id, activeVariation.id, activeQty - 1)
               }
               onPlus={() =>
-                setCameraVariationQty(
-                  cam.id,
-                  activeVariation.id,
-                  activeQty + 1,
-                )
+                setCameraVariationQty(cam.id, activeVariation.id, activeQty + 1)
               }
             />
           </div>
@@ -109,11 +107,7 @@ export default function CameraCard({ cam }: { cam: CameraType }) {
             <div>
               {cam.discount !== 0 && (
                 <div className="text-text-primary">
-                  ${" "}
-                  {(
-                    cam.price -
-                    (cam.discount / 100) * cam.price
-                  ).toFixed(2)}
+                  $ {(cam.price - (cam.discount / 100) * cam.price).toFixed(2)}
                 </div>
               )}
             </div>

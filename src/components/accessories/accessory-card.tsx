@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import type { AccessoryType } from "../../lib/types/accessory";
 import useBundleStore from "../../store/bundle-store";
 import QuantitySelector from "../global/quantity-selector";
@@ -34,7 +35,7 @@ export default function AccessoryCard({
         <h2 className="text-[16px] font-semibold">{accessory.title}</h2>
         <p className="text-text-primary text-sm mb-3!">
           {accessory.description}{" "}
-          <span className="text-blue-600 underline text-sm">Learn More</span>
+           <Link to={`/products/${accessory.id}`} className="text-blue-600 underline text-sm">Learn More</Link>
         </p>
         <div className="flex justify-between items-center gap-2">
           <div className="mt-3">
