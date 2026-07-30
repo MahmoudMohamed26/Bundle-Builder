@@ -15,7 +15,7 @@ function App() {
   });
 
   return (
-    <div className="container">
+    <main className="container">
       <h1 className="text-3xl mt-10 font-bold">Let's Get Started</h1>
       <div className="py-5 grid xl:grid-cols-3 items-start gap-3 xl:gap-10">
         <div className="xl:col-span-2">
@@ -69,7 +69,7 @@ function App() {
         </div>
         <ReviewSidebar />
       </div>
-    </div>
+    </main>
   );
 }
 

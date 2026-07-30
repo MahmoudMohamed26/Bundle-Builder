@@ -55,11 +55,15 @@ function ReviewSidebar() {
     })
     .filter((item): item is NonNullable<typeof item> => item != null);
 
+  const selectedPlan =
+    store.plan !== null ? plans.find((p) => p.id === store.plan) : null;
+
   const totalOriginal = (() => {
     let sum = 0;
     for (const v of selectedCameraVariations) sum += v.qty * v.camPrice;
     for (const s of selectedSensors) sum += s.qty * s.price;
     for (const a of selectedAccessories) sum += a.qty * a.price;
+    if (selectedPlan) sum += selectedPlan.price;
     return sum;
   })();
 
@@ -71,6 +75,8 @@ function ReviewSidebar() {
       sum += s.qty * discountedValue(s.price, s.discount);
     for (const a of selectedAccessories)
       sum += a.qty * discountedValue(a.price, a.discount);
+    if (selectedPlan)
+      sum += discountedValue(selectedPlan.price, selectedPlan.discount);
     return sum;
   })();
 

@@ -19,11 +19,11 @@ export default function QuantitySelector({
       : "border-3 border-[#f1f5f7] p-[2px] disabled:opacity-50! disabled:cursor-not-allowed disabled:bg-transparent! bg-[#f1f5f7] rounded-xs cursor-pointer";
   return (
     <div className="flex gap-3 items-end text-text-primary">
-      <button disabled={qty === 0} onClick={onMinus} className={btnClass}>
+      <button aria-label="minus" disabled={qty === 0} onClick={onMinus} className={btnClass}>
         <Minus size={12} />
       </button>
       <span className="font-bold text-[16px] min-w-[20px] flex justify-center">{qty}</span>
-      <button disabled={qty >= max} onClick={onPlus} className={btnClass}>
+      <button aria-label="plus" disabled={qty >= max} onClick={onPlus} className={btnClass}>
         <Plus size={12} />
       </button>
     </div>

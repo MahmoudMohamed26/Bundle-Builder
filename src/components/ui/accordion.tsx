@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useRef } from "react";
 import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion";
 
 import { cn } from "../../lib/utils";
@@ -12,9 +12,29 @@ function Accordion({
   total,
   ...props
 }: AccordionPrimitive.Root.Props & { step?: number; total?: number }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (step === 1) return;
+    const value = props.value;
+    const isOpen = Array.isArray(value) ? value.length > 0 : Boolean(value);
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        const item =
+          rootRef.current?.querySelector('[data-slot="accordion-item"]');
+        if (item) {
+          const top = item.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({ top, behavior: "smooth" });
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [props.value, step]);
+
   return (
     <StepContext.Provider value={{ step: step ?? 0, total: total ?? 0 }}>
       <AccordionPrimitive.Root
+        ref={rootRef}
         data-slot="accordion"
         className={cn("flex w-full flex-col", className)}
         {...props}
@@ -56,13 +76,20 @@ function AccordionTrigger({
           {children}
           <div className="flex items-center gap-2">
             {count !== undefined && count > 0 && (
-              <span className="sm:text-primary py-1 px-3 text-sm rounded-full bg-primary sm:bg-transparent sm:rounded-none sm:p-0! text-white font-normal">
+              <span className="sm:text-primary py-px px-2 sm:py-1 sm:px-3 text-xs sm:text-sm rounded-full bg-primary sm:bg-transparent sm:rounded-none sm:p-0! text-white font-normal">
                 {`${count}`}
                 <span className="hidden sm:inline"> Selected</span>
               </span>
             )}
             <span className="text-primary text-md transition-transform duration-200 group-aria-expanded/accordion-trigger:rotate-180">
-              ⏷
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 100 100"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polygon points="10,20 90,20 50,80" className="fill-primary" />
+              </svg>
             </span>
           </div>
         </div>
