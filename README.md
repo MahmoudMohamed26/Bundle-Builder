@@ -1,5 +1,7 @@
 # Bundle Builder
 
+**Live demo:** [https://bundle-builder-chi-six.vercel.app/bundle-builder](https://bundle-builder-chi-six.vercel.app/bundle-builder)
+
 A multi-step security system bundle builder with a live review panel. Built as a React prototype.
 
 ## Quick Start
