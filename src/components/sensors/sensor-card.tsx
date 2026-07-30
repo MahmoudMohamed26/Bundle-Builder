@@ -11,7 +11,7 @@ export default function SensorCard({ sensor }: { sensor: SensorType }) {
 
   return (
     <div
-      className={`bg-white relative h-full py-2 px-5 flex flex-col lg:flex-row gap-2 items-center rounded-[10px] border-2 ${qty > 0 ? "border-primary" : "border-white"}`}
+      className={`bg-white duration-300 relative h-full py-2 px-5 flex flex-col lg:flex-row gap-2 items-center rounded-[10px] border-2 ${qty > 0 ? "border-primary" : "border-white"}`}
     >
       {sensor.discount !== 0 && (
         <div className="absolute start-2 top-2 rounded-full text-white bg-primary px-2 py-[2px] text-xs">
@@ -29,7 +29,12 @@ export default function SensorCard({ sensor }: { sensor: SensorType }) {
         <h2 className="text-[16px] font-semibold">{sensor.title}</h2>
         <p className="text-text-primary text-sm mb-3!">
           {sensor.description}{" "}
-           <Link to={`/products/${sensor.id}`} className="text-blue-600 underline text-sm">Learn More</Link>
+          <Link
+            to={`/products/${sensor.id}`}
+            className="text-blue-600 underline text-sm"
+          >
+            Learn More
+          </Link>
         </p>
         <div className="flex justify-between items-center gap-2">
           <div className="mt-3">

@@ -9,7 +9,7 @@ export default function PlanCard({ plan }: { plan: PlanType }) {
   return (
     <div
       onClick={() => setPlan(selected ? null : plan.id)}
-      className={`relative rounded-[10px] border-2 p-5 text-center transition-all cursor-pointer
+      className={`relative rounded-[10px] border-2 p-5 text-center duration-300 cursor-pointer
         ${selected ? "border-primary bg-primary/5" : "border-white bg-white hover:border-gray-300"}`}
     >
       {plan.discount !== 0 && (

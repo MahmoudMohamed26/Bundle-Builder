@@ -17,7 +17,7 @@ export default function AccessoryCard({
 
   return (
     <div
-      className={`bg-white relative h-full py-2 px-5 flex flex-col lg:flex-row gap-2 items-center rounded-[10px] border-2 ${qty > 0 ? "border-primary" : "border-white"}`}
+      className={`bg-white duration-300 relative h-full py-2 px-5 flex flex-col lg:flex-row gap-2 items-center rounded-[10px] border-2 ${qty > 0 ? "border-primary" : "border-white"}`}
     >
       {accessory.discount !== 0 && (
         <div className="absolute start-2 top-2 rounded-full text-white bg-primary px-2 py-[2px] text-xs">

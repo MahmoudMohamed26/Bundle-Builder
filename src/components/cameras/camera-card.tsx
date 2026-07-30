@@ -24,7 +24,7 @@ export default function CameraCard({ cam }: { cam: CameraType }) {
 
   return (
     <div
-      className={`bg-white relative h-full py-2 px-5 flex flex-col lg:flex-row gap-2 items-center rounded-[10px] border-2 ${hasAnyQty ? "border-primary" : "border-white"}`}
+      className={`bg-white relative h-full py-2 duration-300 px-5 flex flex-col lg:flex-row gap-2 items-center rounded-[10px] border-2 ${hasAnyQty ? "border-primary" : "border-white"}`}
     >
       {cam.discount !== 0 && (
         <div className="absolute start-2 top-2 rounded-full text-white bg-primary px-2 py-[2px] text-xs">
